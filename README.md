@@ -1,4 +1,4 @@
-# Sistemas de computaci
+# Sistemas de computación
 Trabajo práctico 4 - "Módulos de kernel"
 
 ## Integrantes
@@ -88,8 +88,33 @@ Si navegamos hasta la ruta de binarios encontraremos nuestro paquete instalado y
 
 ![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/f515a244-9448-4831-b3ac-620fac1b1f3a)
 
+### Seguridad del kernel
 
+Para aumentar el nivel de seguridad del sistema se opta por usar módulos de kernel de firmados, si el *__arranque seguro__* está habilitado los cargadores de arranque del sistema operativo UEFI, el kernel de linux y todos los módulos tienen que estar firmados con una clave privada y autenticado con una pública, de otro modo, el sistema no podrá terminar el proceso de arranque
 
+Para poder firmar módulos de kernel construidos externamente es que se utilizan los siguientes comandos:
+- `openssl` genera un par de claves X.509 públicas y privadas
+- `sign-file`usado para firmar un módulo de kernel con la clave privada
+- `mokutil` opcionalmente utilizado para inscribir manualmente la clave pública 
+
+Junto a esas instrucciones también se usan una serie de llaveros:
+
+*__builtin_trusted_keys__* es un llavero que se construye en el arranque
+contiene claves públicas de confianza. Los privilegios de root son necesarios para ver las claves
+
+*__.platform__* es un llavero que se construye en el arranque contiene claves de proveedores de plataformas de terceros y claves públicas personalizadas. Sólo root puede ver las claves
+
+*__.blacklist__* es un llavero con claves X.509 que han sido revocadas. Un módulo firmado por una clave de .blacklist fallará la autenticación incluso si su clave pública está en .builtin_trusted_keys
+
+De esta manera cuando se carga un módulo del núcleo, éste comprueba la firma del módulo con las claves públicas X.509 del llavero del sistema del núcleo `.builtin_trusted_keys` y del llavero de la plataforma del núcleo `.platform`, el llavero `.platform` contiene claves de proveedores de plataforma de terceros y claves públicas personalizadas. Las claves del llavero del sistema del kernel `.blacklist` están excluidas de la verificación.
+
+Es necesario cumplir ciertas condiciones para cargar módulos del kernel si UEFI Secure Boot está activada: 
+
+- Si el arranque seguro de UEFI está activado o si se ha especificado el parámetro de kernel `module.sig_enforce` sólo puede cargar aquellos módulos del kernel cuyas firmas fueron autenticadas contra claves del llavero del sistema `.builtin_trusted_keys` y del llavero de la plataforma `.platform`, además, la clave pública no debe estar en el llavero de claves revocadas del sistema.
+
+- Si el arranque seguro de UEFI está desactivado y no se ha especificado el parámetro de kernel module.sig_enforce, puedes cargar módulos del núcleo sin firmar y módulos del núcleo firmados sin clave pública.
+
+- Si el sistema no está basado en UEFI o si el arranque seguro de UEFI está desactivado, en `.builtin_trusted_keys` y `.platform` sólo se cargan las claves incrustadas en el núcleo, no se puede aumentar ese conjunto de claves sin reconstruir el núcleo.
 
 
 
