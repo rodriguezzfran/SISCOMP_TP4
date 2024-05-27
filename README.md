@@ -3,6 +3,7 @@ Trabajo práctico 4 - "Módulos de kernel"
 
 ## Integrantes
 @Rodriguezzfran
+@mauriciovaldez19 
 
 ## Kernel Modules - Introducción
 
