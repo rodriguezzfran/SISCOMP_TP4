@@ -124,7 +124,7 @@ Es necesario cumplir ciertas condiciones para cargar módulos del kernel si UEFI
 ## Desafio 2 - Programas vs. Módulos
 
 ### ¿Qué funciones tiene disponible un programa y un módulo?
-Un programa tiene acceso a funciones de la librería estándar de C que se resuelven en tiempo de enlace y a las funciones propias del código del programa, y también, aunque mediante una interfaz brindadapor las funciones de la librería, a las _system calls_ proporcionadas por el kernel; mientras que un módulo tiene acceso solo a estas últimas, las cuales se pueden ver en el contenido del archivo ```/proc/kallsyms```, y puede definir sus propias funciones para interactuar directamente con el sistema operativo.
+Un programa tiene acceso a funciones de la librería estándar de C que se resuelven en tiempo de enlace y a las funciones propias del código del programa, y también, aunque mediante una interfaz brindadapor las funciones de la librería, a las _system calls_ proporcionadas por el kernel; mientras que un módulo tiene acceso solo a estas últimas, las cuales se pueden ver en el contenido del archivo ```/proc/kallsyms```, y puede definir sus propias funciones para interactuar directamente con el sistema operativo (un ejemplo de esto son `module_init` y `module_exit`, que se utilizan para definir el inicio y el fin del módulo, respectivamente).
 
 Para ver las _system calls_ generadas por un programa a partir de una función de la librería estándar compilamos el siguiente script con la flag ```-Wall``` y luego lo ejecutamos con ```strace```:
 ```C
@@ -176,6 +176,64 @@ Los drivers son una clase de modulo que permiten al sistema operativo comunicars
 
 Los dispositivos se dividen en dos tipos: __Character devices__ y __Block devices__. La diferencia es que los _block devices_ tienen un buffer para solicitudes, por lo que pueden elegir el mejor orden para responder a las solicitudes. Esto es importante en el caso de los dispositivos de almacenamiento, donde es más rápido leer o escribir sectores cercanos entre sí que aquellos que están más separados. Otra diferencia es que los _block devices_ solo pueden aceptar entradas y devolver salidas en bloques (cuyo tamaño puede variar según el dispositivo), mientras que los _character devices_ pueden usar tantos o tan pocos bytes como quieran. La mayoría de los dispositivos en el mundo son _character_ porque no necesitan este tipo de almacenamiento en buffer y no funcionan con un tamaño de bloque fijo.
 
+### Que diferencia hay entre los dos modinfo
+
+Los comandos a evaluar son:
+*__modinfo mimodulo.ko__* 
+*__modinfo /lib/modules/$(uname -r)/kernel/crypto/des_generic.ko__*
+
+Recordemos que `modinfo` muestra información sobre un módulo del kernel, y la información puede incluir detalles como la versión, el autor, la descripción, la licencia, entre otros.
+
+Al ejecutar `modinfo mimodulo.ko` se obtendrá información específica sobre un módulo del kernel que has creado o que se ha obtenido fuera del árbol principal del kernel (out-of-tree), mientras que al ejecutar `modinfo /lib/modules/$(uname -r)/kernel/crypto/des_generic.ko` se obtendrá información sobre un módulo que forma parte del kernel principal (in-tree). Este módulo estará firmado y validado, lo cual es importante para la seguridad y la estabilidad del sistema
+
+### ¿Qué divers/modulos estan cargados en sus propias pc? 
+
+para poder hacer esta consigna se ejecuta el comando `lsmod` la cual muestra todos los módulos cargados en el sistema, usando una PIPE se puede anexar el comando `head -n 30`para ver una lista acotada
+
+![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/df8366a6-c444-4256-9ee1-e03e1c462829)
+
+// anexar comparación
+
+para poder ver cuales están disponibles pero no están cargados se usa el comando `find /lib/modules/$(uname -r)/kernel -type f -name "*.ko"` para listar todos los módulos disponibles, luego con  `lsmod | awk '{print $1}' > /tmp/loaded_modules` se puede comparar con los cargados. El comando completo `find /lib/modules/$(uname -r)/kernel -type f -name "*.ko" | awk -F'/' '{print $NF}' | sed 's/\.ko$//' > /tmp/available_modules` es el usado, finalmente `comm -23 /tmp/available_modules /tmp/loaded_modules` da los disponibles pero no cargados.
+
+ejecutandolos tenemos la siguiente salida
+
+![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/13328beb-2c66-44ac-9ff3-e4f6a49cdc1a)
+
+Qué Sucede Cuando el Driver de un Dispositivo No Está Disponible?
+
+Cuando el driver de un dispositivo no está disponible, pueden ocurrir varios problemas:
+
+- *__Dispositivo no reconocido:__* El sistema operativo no podrá reconocer el dispositivo, esto significa que el dispositivo no aparecerá en las interfaces de usuario, como el administrador de dispositivos en sistemas gráficos.
+
+- *__Funcionalidad limitada:__* El dispositivo puede aparecer pero con funcionalidad limitada, por ejemplo, una tarjeta de red puede ser reconocida pero no funcionar correctamente sin el driver adecuado.
+
+- *__Errores en los registros del sistema:__* Puede haber mensajes de error en los registros del sistema (consultables con dmesg, journalctl, o en archivos de registro en /var/log/) indicando que no se encontró el driver necesario para el dispositivo.
+
+- *__Fallo en la carga del sistema:__* En casos raros, la falta de un driver crítico puede causar que el sistema operativo no cargue correctamente o falle durante la operación.
+
+### Correr hwinfo
+Para poder hacer esta parte se tiene que instalar el paquete de hwinfo con `sudo apt-get install hwinfo`, luego con el comando `sudo hwinfo --short > hwinfo_report.txt` se genera el informe, el cual se encuentra en el root del proyecto, con sus correspondientes urls.
+
+![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/2ff4f4c2-8b5c-4f86-b739-67a290ef59d9)
+
+### ¿Qué es un Segmentation Fault?
+Un segmentation fault ocurre en las siguientes situaciones típicas:
+
+- Acceder a una dirección de memoria que no pertenece al espacio de direcciones del programa.
+- Intentar escribir en una región de memoria de solo lectura.
+- Referenciar un puntero nulo o no inicializado.
+
+Cuando un programa causa un segmentation fault, el kernel de Linux maneja la situación de la siguiente manera:
+
+- *__Detección del Error:__* El hardware de la CPU detecta el acceso ilegal a la memoria y genera una excepción, conocida como "page fault".
+
+- *__Generación de la Señal:__* El kernel intercepta esta excepción y genera una señal SIGSEGV (señal de segmentación) para el proceso que causó el fallo.
+
+- *__Terminar el Proceso:__* Por defecto, si el proceso no maneja la señal SIGSEGV, el kernel termina el proceso y opcionalmente crea un archivo core dump (volcado de memoria) que puede ser utilizado para el análisis post-mortem del estado del proceso en el momento del fallo.
+
+- +__Registro de Mensajes:__* El kernel puede registrar un mensaje de error en los logs del sistema, indicando que el proceso fue terminado debido a un segmentation fault.
+
 ### ¿Quién carga los módulos del Kernel?
 Los módulos del kernel son cargados por el administrador del sistema o automáticamente por el sistema operativo a través de varias utilidades y mecanismos.
 
@@ -194,7 +252,6 @@ Los módulos del kernel son cargados por el administrador del sistema o automát
 - Configuraciones del Sistema:
     - Archivos de configuración: Algunos sistemas operativos permiten especificar módulos del kernel que deben cargarse automáticamente al inicio mediante archivos de configuración, como /etc/modules en sistemas basados en Debian.
 
-
 ## Firma de los modulos del Kernel
 Como ya se explicó antes, firmar los módulos es un buen mecanismo de seguridad. A continuación se muestra cómo se firma y se inserta un módulo al sistema:
 
@@ -204,6 +261,7 @@ Luego de esto se hace un reboot para inscribir la firma en el sistema y se proce
 
 ![module_ins](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/129474500/ebefa158-e95a-4b3b-9848-89abe5f7cb39)
 
+Cándo un amigo con secure boot trata de montar el modulo firmado por otra persona este tira un error, no porque no esté firmado, sino porque la firma no se encuentra dentro de las firmas habilitadas para el kernel de la persona.
 
 
 
