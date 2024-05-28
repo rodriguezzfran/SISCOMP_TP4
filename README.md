@@ -192,7 +192,14 @@ Los módulos del kernel son cargados por el administrador del sistema o automát
     - Archivos de configuración: Algunos sistemas operativos permiten especificar módulos del kernel que deben cargarse automáticamente al inicio mediante archivos de configuración, como /etc/modules en sistemas basados en Debian.
 
 
+## Firma de los modulos del Kernel
+Como ya se explicó antes, firmar los módulos es un buen mecanismo de seguridad. A continuación se muestra cómo se firma y se inserta un módulo al sistema:
 
+![module_sign](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/129474500/c387d101-770c-4c3c-a52e-65e3abdd5804)
+
+Luego de esto se hace un reboot para inscribir la firma en el sistema y se procede con la inserción del módulo:
+
+![module_ins](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/129474500/ebefa158-e95a-4b3b-9848-89abe5f7cb39)
 
 
 
