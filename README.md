@@ -193,7 +193,11 @@ para poder hacer esta consigna se ejecuta el comando `lsmod` la cual muestra tod
 ![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/df8366a6-c444-4256-9ee1-e03e1c462829)
 ![imagen](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/103122420/5cc13508-a181-4767-82c8-974d43b641bf)
 
-// anexar comparación
+ejecuntando diff con 2 de los 3 archivos la salida muestr alago así
+
+![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/575ba363-8c00-4299-81e0-6001df600d17)
+
+indicando que líneas son diferentes en las 2 computadoras
 
 para poder ver cuales están disponibles pero no están cargados se usa el comando `find /lib/modules/$(uname -r)/kernel -type f -name "*.ko"` para listar todos los módulos disponibles, luego con  `lsmod | awk '{print $1}' > /tmp/loaded_modules` se puede comparar con los cargados. El comando completo `find /lib/modules/$(uname -r)/kernel -type f -name "*.ko" | awk -F'/' '{print $NF}' | sed 's/\.ko$//' > /tmp/available_modules` es el usado, finalmente `comm -23 /tmp/available_modules /tmp/loaded_modules` da los disponibles pero no cargados.
 
@@ -201,7 +205,7 @@ ejecutandolos tenemos la siguiente salida
 
 ![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/13328beb-2c66-44ac-9ff3-e4f6a49cdc1a)
 
-Qué Sucede Cuando el Driver de un Dispositivo No Está Disponible?
+Qué sucede cuando el driver de un dispositivo no está disponible?
 
 Cuando el driver de un dispositivo no está disponible, pueden ocurrir varios problemas:
 
@@ -233,7 +237,7 @@ Cuando un programa causa un segmentation fault, el kernel de Linux maneja la sit
 
 - *__Terminar el Proceso:__* Por defecto, si el proceso no maneja la señal SIGSEGV, el kernel termina el proceso y opcionalmente crea un archivo core dump (volcado de memoria) que puede ser utilizado para el análisis post-mortem del estado del proceso en el momento del fallo.
 
-- +__Registro de Mensajes:__* El kernel puede registrar un mensaje de error en los logs del sistema, indicando que el proceso fue terminado debido a un segmentation fault.
+- *__Registro de Mensajes:__* El kernel puede registrar un mensaje de error en los logs del sistema, indicando que el proceso fue terminado debido a un segmentation fault.
 
 ### ¿Quién carga los módulos del Kernel?
 Los módulos del kernel son cargados por el administrador del sistema o automáticamente por el sistema operativo a través de varias utilidades y mecanismos.
