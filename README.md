@@ -191,6 +191,7 @@ Al ejecutar `modinfo mimodulo.ko` se obtendrá información específica sobre un
 para poder hacer esta consigna se ejecuta el comando `lsmod` la cual muestra todos los módulos cargados en el sistema, usando una PIPE se puede anexar el comando `head -n 30`para ver una lista acotada
 
 ![image](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/122646722/df8366a6-c444-4256-9ee1-e03e1c462829)
+![imagen](https://github.com/rodriguezzfran/SISCOMP_TP4/assets/103122420/5cc13508-a181-4767-82c8-974d43b641bf)
 
 // anexar comparación
 
