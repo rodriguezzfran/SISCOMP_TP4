@@ -2,8 +2,11 @@
 Trabajo práctico 4 - "Módulos de kernel"
 
 ## Integrantes
-@Rodriguezzfran
-@mauriciovaldez19 
+[Bruno Guglielmotti](https://github.com/BrunoGugli)
+
+[Franco Rodriguez](https://github.com/rodriguezzfran)
+
+[Mauricio Valdez](https://github.com/mauriciovaldez19)
 
 ## Kernel Modules - Introducción
 
