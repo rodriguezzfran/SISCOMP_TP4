@@ -1,1 +1,0 @@
-savedcmd_/home/franco/Escritorio/SISCOMP_TP4/mimodulo_kernel_module/modules.order := {   echo /home/franco/Escritorio/SISCOMP_TP4/mimodulo_kernel_module/mimodulo.o; :; } > /home/franco/Escritorio/SISCOMP_TP4/mimodulo_kernel_module/modules.order
